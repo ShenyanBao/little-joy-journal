@@ -4,6 +4,7 @@ from PIL import Image, ImageTk, ImageDraw, ImageFilter, ImageEnhance, ImageFont
 import math
 
 class StickerTool:
+    # STEP 1 - BUILD THE TWO-PAGE INTERFACE
     def __init__(self, root):
         self.root = root
         self.root.title("Sticker & Scrapbook Tool")
@@ -33,7 +34,7 @@ class StickerTool:
         tk.Button(frame_btn, text="Upload Image", command=self.load_img).grid(row=0, column=0, padx=3)
         tk.Button(frame_btn, text="Crop Shape", command=self.crop_shape).grid(row=0, column=1, padx=3)
         tk.Button(frame_btn, text="Clear Path", command=self.clear_path).grid(row=0, column=2, padx=3)
-        tk.Button(frame_btn, text="Ugly Lowpoly Filter", command=self.lowpoly_blur).grid(row=0, column=3, padx=3)
+        tk.Button(frame_btn, text="Low-Poly Filter", command=self.lowpoly_blur).grid(row=0, column=3, padx=3)
         tk.Button(frame_btn, text="Undo Last", command=self.undo_last).grid(row=0, column=4, padx=3)
         tk.Button(frame_btn, text="Save PNG Sticker", command=self.save_sticker).grid(row=0, column=5, padx=3)
 
@@ -116,6 +117,7 @@ class StickerTool:
         self.img_display = self.undo_stack.pop()
         self.show_img()
 
+    # STEP 2 - UPLOAD AND DISPLAY AN IMAGE
     def load_img(self):
         path = filedialog.askopenfilename(filetypes=[("Image Files", "*.jpg;*.jpeg;*.png")])
         if not path:
@@ -138,6 +140,7 @@ class StickerTool:
         if len(self.free_path) > 1:
             self.canvas_crop.create_line(self.free_path, fill="white", width=2, dash=(5,4), smooth=True)
 
+    # STEP 3 - RECORD A FREEHAND SELECTION PATH
     def start_draw(self, event):
         self.drawing = True
         self.free_path = [(event.x, event.y)]
@@ -158,6 +161,7 @@ class StickerTool:
         self.free_path = []
         self.show_img()
 
+    # STEP 4 - TURN THE SELECTION INTO A TRANSPARENT STICKER
     def crop_shape(self):
         if self.img_display is None or len(self.free_path) < 4:
             return
@@ -176,6 +180,7 @@ class StickerTool:
         self.free_path = []
         self.show_img()
 
+    # STEP 5 - APPLY PIXELATION, CONTRAST, AND COLOUR ADJUSTMENTS
     def update_adjust(self, value=None):
         if self.cropped_base is None:
             return
@@ -204,6 +209,7 @@ class StickerTool:
         self.img_display = img
         self.show_img()
 
+    # STEP 6 - EXPORT THE STICKER AS A PNG
     def save_sticker(self):
         if self.img_display is None:
             return
@@ -302,6 +308,7 @@ class StickerTool:
         self.render_sticker(self.selected_sticker)
 
     # ---------------- SCRAPBOOK MAIN FUNCTIONS ----------------
+    # STEP 7 - IMPORT A STICKER INTO THE SCRAPBOOK
     def scrap_import_png(self):
         path = filedialog.askopenfilename(filetypes=[("PNG sticker", "*.png")])
         if not path:
@@ -325,6 +332,7 @@ class StickerTool:
         })
         self.render_sticker(self.scrap_sticker_list[-1])
 
+    # STEP 8 - ADD AND STYLE JOURNAL TEXT
     def scrap_add_text_dialog(self):
         popup = tk.Toplevel(self.root)
         popup.title("Add Text")
@@ -419,6 +427,7 @@ class StickerTool:
             self.scrap_bg_color = c[1]
             self.canvas_scrap.config(bg=c[1])
 
+    # STEP 9 - MOVE, SCALE, AND ROTATE STICKERS WITH THE MOUSE
     def scrap_start_drag(self, event):
         items_under = self.canvas_scrap.find_closest(event.x, event.y)
         if not items_under:
@@ -540,7 +549,8 @@ class StickerTool:
         self.selected_sticker = None
         self.clear_handles()
 
-        def scrap_save(self):
+    # STEP 10 - EXPORT THE FINISHED SCRAPBOOK PAGE
+    def scrap_save(self):
         save_path = filedialog.asksaveasfilename(
             defaultextension=".png",
             filetypes=[("Scrapbook PNG", "*.png")]
