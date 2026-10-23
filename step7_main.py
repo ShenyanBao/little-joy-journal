@@ -1,6 +1,6 @@
 import tkinter as tk
 from tkinter import filedialog, messagebox, simpledialog, colorchooser
-from PIL import Image, ImageTk, ImageDraw, ImageFilter, ImageEnhance
+from PIL import Image, ImageTk, ImageDraw, ImageFilter, ImageEnhance, ImageFont
 import math
 
 class StickerTool:
@@ -540,20 +540,52 @@ class StickerTool:
         self.selected_sticker = None
         self.clear_handles()
 
-    def scrap_save(self):
-        save_path = filedialog.asksaveasfilename(defaultextension=".png", filetypes=[("Scrapbook PNG", "*.png")])
+        def scrap_save(self):
+        save_path = filedialog.asksaveasfilename(
+            defaultextension=".png",
+            filetypes=[("Scrapbook PNG", "*.png")]
+        )
         if not save_path:
             return
+
         w = int(self.canvas_scrap["width"])
         h = int(self.canvas_scrap["height"])
-        bg = Image.new("RGBA", (w, h), self.hex_to_rgba(self.scrap_bg_color))
+        bg = Image.new(
+            "RGBA",
+            (w, h),
+            self.hex_to_rgba(self.scrap_bg_color)
+        )
+
         for s in self.scrap_sticker_list:
-            bg.paste(s["pil"], (int(s["x"]), int(s["y"])), mask=s["pil"])
+            bg.paste(
+                s["pil"],
+                (int(s["x"]), int(s["y"])),
+                mask=s["pil"]
+            )
+
         draw = ImageDraw.Draw(bg)
+
         for t in self.scrap_text_list:
-            draw.text((t["x"], t["y"]), t["text"], fill=t["color"], font=(t["fontfamily"], t["fontsize"]))
+            try:
+                font = ImageFont.truetype(
+                    "arial.ttf",
+                    t["fontsize"]
+                )
+            except OSError:
+                font = ImageFont.load_default()
+
+            draw.multiline_text(
+                (t["x"], t["y"]),
+                t["text"],
+                fill=t["color"],
+                font=font
+            )
+
         bg.save(save_path)
-        messagebox.showinfo("Done", f"Saved file:\n{save_path}")
+        messagebox.showinfo(
+            "Done",
+            f"Saved file:\n{save_path}"
+        )
 
     def hex_to_rgba(self, hex_color):
         hex_color = hex_color.strip("#")
